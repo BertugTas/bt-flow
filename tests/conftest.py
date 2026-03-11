@@ -19,6 +19,7 @@ from sklearn.linear_model import LinearRegression, LogisticRegression
 # Raw data
 # ---------------------------------------------------------------------------
 
+
 @pytest.fixture(scope="session")
 def iris_data():  # type: ignore[return]
     """Return the Iris dataset as (X_array, y)."""
@@ -42,6 +43,7 @@ def regression_data():  # type: ignore[return]
 # ---------------------------------------------------------------------------
 # Fitted estimators (session-scoped)
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture(scope="session")
 def fitted_classifier(iris_data):  # type: ignore[return]
@@ -73,6 +75,7 @@ def fitted_regressor(regression_data):  # type: ignore[return]
 # ---------------------------------------------------------------------------
 # Serialised model paths (session-scoped, tmp_path_factory)
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture(scope="session")
 def pkl_model_path(tmp_path_factory, fitted_classifier) -> pathlib.Path:  # type: ignore[return]

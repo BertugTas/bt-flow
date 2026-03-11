@@ -111,7 +111,9 @@ class APIGenerator:
     ) -> None:
         self._start_time: float = time.time()
         self._model_source_repr: str = (
-            str(model_source) if isinstance(model_source, (str, Path)) else type(model_source).__name__
+            str(model_source)
+            if isinstance(model_source, (str, Path))
+            else type(model_source).__name__
         )
 
         # --- Load & validate ---
@@ -390,12 +392,10 @@ class APIGenerator:
             classifiers that implement ``predict_proba``, per-class probabilities.
             """
             try:
-                payload: dict[str, Any] = request.model_dump()  # type: ignore[union-attr]
+                payload: dict[str, Any] = request.model_dump()  # type: ignore[attr-defined]
 
                 if _feature_names is not None:
-                    feature_values: list[float] = [
-                        float(payload[name]) for name in _feature_names
-                    ]
+                    feature_values: list[float] = [float(payload[name]) for name in _feature_names]
                 else:
                     feature_values = [float(v) for v in payload["features"]]
 
@@ -408,8 +408,7 @@ class APIGenerator:
                     raw_proba: np.ndarray = _model.predict_proba(X)[0]
                     class_labels: list[str] = [str(c) for c in _model.classes_]
                     probabilities = {
-                        label: round(float(prob), 6)
-                        for label, prob in zip(class_labels, raw_proba)
+                        label: round(float(prob), 6) for label, prob in zip(class_labels, raw_proba)
                     }
 
                 return PredictionResponse(

@@ -23,6 +23,7 @@ from bt import APIGenerator, ModelLoadError, UnsupportedModelError
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def make_client(generator: APIGenerator) -> TestClient:
     return TestClient(generator.app)
 
@@ -30,6 +31,7 @@ def make_client(generator: APIGenerator) -> TestClient:
 # ---------------------------------------------------------------------------
 # Model loading tests
 # ---------------------------------------------------------------------------
+
 
 class TestModelLoading:
     def test_load_from_pkl_path(self, pkl_model_path: pathlib.Path) -> None:
@@ -66,6 +68,7 @@ class TestModelLoading:
     def test_non_sklearn_object_raises(self) -> None:
         class FakeModel:
             n_features_in_ = 4
+
             def predict(self, X):  # type: ignore[no-untyped-def]
                 return X
 
@@ -84,6 +87,7 @@ class TestModelLoading:
 # ---------------------------------------------------------------------------
 # Schema inference tests
 # ---------------------------------------------------------------------------
+
 
 class TestSchemaInference:
     def test_positional_schema_no_feature_names(self, fitted_classifier) -> None:  # type: ignore[no-untyped-def]
@@ -109,6 +113,7 @@ class TestSchemaInference:
 # ---------------------------------------------------------------------------
 # /health endpoint tests
 # ---------------------------------------------------------------------------
+
 
 class TestHealthEndpoint:
     def test_returns_200(self, fitted_classifier) -> None:  # type: ignore[no-untyped-def]
@@ -152,6 +157,7 @@ class TestHealthEndpoint:
 # /predict endpoint tests — positional schema
 # ---------------------------------------------------------------------------
 
+
 class TestPredictPositional:
     """Classifier trained on raw numpy array — positional feature schema."""
 
@@ -192,6 +198,7 @@ class TestPredictPositional:
 # /predict endpoint tests — named schema
 # ---------------------------------------------------------------------------
 
+
 class TestPredictNamed:
     """Classifier trained on DataFrame — named feature schema."""
 
@@ -224,6 +231,7 @@ class TestPredictNamed:
 # /predict endpoint tests — regressor (no probabilities)
 # ---------------------------------------------------------------------------
 
+
 class TestPredictRegressor:
     @pytest.fixture(autouse=True)
     def setup(self, fitted_regressor) -> None:  # type: ignore[no-untyped-def]
@@ -249,6 +257,7 @@ class TestPredictRegressor:
 # ---------------------------------------------------------------------------
 # OpenAPI docs availability
 # ---------------------------------------------------------------------------
+
 
 class TestOpenAPIDocs:
     def test_openapi_json_available(self, fitted_classifier) -> None:  # type: ignore[no-untyped-def]

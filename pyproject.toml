@@ -10,7 +10,7 @@ readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.9"
 authors = [
-    { name = "Your Name", email = "you@example.com" },
+    { name = "Bertug Tas", email = "bertugtas@example.com" },
 ]
 keywords = ["mlops", "fastapi", "scikit-learn", "deployment", "machine-learning", "api-generator"]
 classifiers = [
@@ -59,16 +59,19 @@ docs = [
 "bt-flow" = "bt.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/bt-flow"
-Repository = "https://github.com/yourusername/bt-flow"
-Documentation = "https://yourusername.github.io/bt-flow"
-"Bug Tracker" = "https://github.com/yourusername/bt-flow/issues"
+Homepage = "https://github.com/BertugTas/bt-flow"
+Repository = "https://github.com/BertugTas/bt-flow"
+Documentation = "https://BertugTas.github.io/bt-flow"
+"Bug Tracker" = "https://github.com/BertugTas/bt-flow/issues"
 
 # ---------------------------------------------------------------------------
 # Hatch build — maps the `bt` top-level package to the src layout
 # ---------------------------------------------------------------------------
 [tool.hatch.build.targets.wheel]
 packages = ["src/bt"]
+
+[tool.hatch.build.targets.wheel.shared-data]
+"src/bt/py.typed" = "bt/py.typed"
 
 # ---------------------------------------------------------------------------
 # Hatch environments
@@ -80,6 +83,7 @@ dependencies = [
     "httpx>=0.27.0",
     "mypy>=1.9.0",
     "ruff>=0.3.0",
+    "pre-commit>=3.7.0",
     "pandas>=2.0.0",
 ]
 
@@ -110,11 +114,16 @@ ignore = [
 # Mypy
 # ---------------------------------------------------------------------------
 [tool.mypy]
-python_version    = "3.9"
-strict            = true
-warn_return_any   = true
+python_version      = "3.9"
+strict              = true
+warn_return_any     = true
 warn_unused_configs = true
-exclude           = ["examples/", "docs/"]
+exclude             = ["examples/", "docs/"]
+
+[[tool.mypy.overrides]]
+# joblib ships no py.typed marker and no stubs; suppress import-untyped for it.
+module            = "joblib"
+ignore_missing_imports = true
 
 # ---------------------------------------------------------------------------
 # Pytest
