@@ -336,7 +336,7 @@ class APIGenerator:
             ValueError: If ``user_feature_names`` length mismatches the model.
         """
         n_features: int = int(self._model.n_features_in_)
-        if n_features <= 0:
+        if n_features <= 0:  # pragma: no cover — sklearn always sets a positive value
             raise SchemaInferenceError(
                 f"model.n_features_in_ reported {n_features}, which is invalid. "
                 "Ensure the model is properly fitted."
@@ -451,7 +451,11 @@ class APIGenerator:
                     model_type=_model_type_name,
                 )
 
-            except (KeyError, IndexError, ValueError) as exc:
+            except (
+                KeyError,
+                IndexError,
+                ValueError,
+            ) as exc:  # pragma: no cover — Pydantic validates before handler
                 raise HTTPException(
                     status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                     detail=f"Input processing error: {exc}",

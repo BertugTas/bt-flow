@@ -293,7 +293,7 @@ def serve(
     # ── Start server (blocking) ──────────────────────────────────────────────
     try:
         api.run(host=host, port=port, log_level=log_level)
-    except KeyboardInterrupt:
+    except KeyboardInterrupt:  # pragma: no cover
         console.print("[dim]\nServer stopped.[/dim]")
         raise typer.Exit(code=0) from None
 
@@ -314,5 +314,5 @@ def main() -> None:
     app()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()

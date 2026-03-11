@@ -7,17 +7,21 @@ Covers:
 - /health endpoint contract.
 - /predict endpoint contract (classifier, classifier+proba, regressor).
 - Error handling: missing file, bad extension, unfitted model, bad payload.
+- ASGI interface.
+- numpy scalar coercion.
 """
 
 from __future__ import annotations
 
 import pathlib
 
+import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 from sklearn.linear_model import LogisticRegression
 
 from bt import APIGenerator, ModelLoadError, UnsupportedModelError
+from bt.schemas import numpy_scalar_to_python
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -313,3 +317,57 @@ class TestOpenAPIDocs:
         gen = APIGenerator(fitted_classifier, docs_url=None, redoc_url=None)
         client = make_client(gen)
         assert client.get("/docs").status_code == 404
+
+
+# ---------------------------------------------------------------------------
+# ASGI interface — APIGenerator as a first-class ASGI callable
+# ---------------------------------------------------------------------------
+
+
+class TestASGIInterface:
+    async def test_asgi_call_delegates_to_app(self, fitted_classifier) -> None:  # type: ignore[no-untyped-def]
+        """APIGenerator.__call__ must forward ASGI traffic to the FastAPI app."""
+        import httpx
+
+        gen = APIGenerator(fitted_classifier)
+        # ASGITransport calls gen.__call__ directly, not gen.app
+        transport = httpx.ASGITransport(app=gen)  # type: ignore[arg-type]
+        async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+            resp = await client.get("/health")
+        assert resp.status_code == 200
+
+
+# ---------------------------------------------------------------------------
+# Model loading — corrupt file
+# ---------------------------------------------------------------------------
+
+
+class TestCorruptModelFile:
+    def test_corrupt_joblib_raises_model_load_error(self, tmp_path: pathlib.Path) -> None:
+        corrupt = tmp_path / "bad.joblib"
+        corrupt.write_bytes(b"this is not a valid joblib file")
+        with pytest.raises(ModelLoadError, match=r"bad\.joblib"):
+            APIGenerator(corrupt)
+
+
+# ---------------------------------------------------------------------------
+# numpy_scalar_to_python — edge cases
+# ---------------------------------------------------------------------------
+
+
+class TestNumpyScalarToPython:
+    def test_numpy_integer(self) -> None:
+        assert numpy_scalar_to_python(np.int64(42)) == 42
+        assert isinstance(numpy_scalar_to_python(np.int64(42)), int)
+
+    def test_numpy_float(self) -> None:
+        assert numpy_scalar_to_python(np.float64(3.14)) == pytest.approx(3.14)
+        assert isinstance(numpy_scalar_to_python(np.float64(3.14)), float)
+
+    def test_numpy_bool(self) -> None:
+        assert numpy_scalar_to_python(np.bool_(True)) == 1
+        assert numpy_scalar_to_python(np.bool_(False)) == 0
+
+    def test_string_fallback(self) -> None:
+        assert numpy_scalar_to_python("setosa") == "setosa"
+        assert isinstance(numpy_scalar_to_python("setosa"), str)
