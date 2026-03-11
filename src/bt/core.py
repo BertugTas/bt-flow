@@ -16,8 +16,9 @@ Typical usage::
 from __future__ import annotations
 
 import time
+from collections.abc import Sequence
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence, Type, Union
+from typing import TYPE_CHECKING, Any
 
 import joblib
 import numpy as np
@@ -96,7 +97,7 @@ class APIGenerator:
 
     def __init__(
         self,
-        model_source: Union[str, Path, Any],
+        model_source: str | Path | Any,
         *,
         title: str = "bt-flow Model API",
         description: str = (
@@ -104,9 +105,9 @@ class APIGenerator:
             "Send POST requests to `/predict` to run model inference."
         ),
         version: str = "0.1.0",
-        feature_names: Optional[Sequence[str]] = None,
-        docs_url: Optional[str] = "/docs",
-        redoc_url: Optional[str] = "/redoc",
+        feature_names: Sequence[str] | None = None,
+        docs_url: str | None = "/docs",
+        redoc_url: str | None = "/redoc",
     ) -> None:
         self._start_time: float = time.time()
         self._model_source_repr: str = (
@@ -118,9 +119,9 @@ class APIGenerator:
         self._validate_model(self._model)
 
         # --- Feature metadata ---
-        self._feature_names: Optional[List[str]] = None
+        self._feature_names: list[str] | None = None
         self._n_features: int = 0
-        self._input_schema: Type[BaseModel] = self._infer_schema(feature_names)
+        self._input_schema: type[BaseModel] = self._infer_schema(feature_names)
 
         # --- FastAPI app ---
         self._app: FastAPI = FastAPI(
@@ -208,7 +209,7 @@ class APIGenerator:
     # Private — model loading
     # ------------------------------------------------------------------
 
-    def _load_model(self, source: Union[str, Path, Any]) -> Any:
+    def _load_model(self, source: str | Path | Any) -> Any:
         """Load a model from a path or return the object as-is.
 
         Args:
@@ -286,8 +287,8 @@ class APIGenerator:
 
     def _infer_schema(
         self,
-        user_feature_names: Optional[Sequence[str]],
-    ) -> Type[BaseModel]:
+        user_feature_names: Sequence[str] | None,
+    ) -> type[BaseModel]:
         """Derive the Pydantic input schema from model metadata.
 
         Resolution order for feature names:
@@ -316,14 +317,14 @@ class APIGenerator:
         self._n_features = n_features
 
         # Resolve feature names
-        raw_names: Optional[Any] = (
+        raw_names: Any | None = (
             list(user_feature_names)
             if user_feature_names is not None
             else getattr(self._model, "feature_names_in_", None)
         )
 
         if raw_names is not None:
-            feature_names: List[str] = [str(n) for n in raw_names]
+            feature_names: list[str] = [str(n) for n in raw_names]
             if len(feature_names) != n_features:
                 raise ValueError(
                     f"Provided {len(feature_names)} feature name(s) but the model "
@@ -389,10 +390,10 @@ class APIGenerator:
             classifiers that implement ``predict_proba``, per-class probabilities.
             """
             try:
-                payload: Dict[str, Any] = request.model_dump()  # type: ignore[union-attr]
+                payload: dict[str, Any] = request.model_dump()  # type: ignore[union-attr]
 
                 if _feature_names is not None:
-                    feature_values: List[float] = [
+                    feature_values: list[float] = [
                         float(payload[name]) for name in _feature_names
                     ]
                 else:
@@ -402,10 +403,10 @@ class APIGenerator:
                 raw_prediction: np.ndarray = _model.predict(X)
                 prediction = numpy_scalar_to_python(raw_prediction[0])
 
-                probabilities: Optional[Dict[str, float]] = None
+                probabilities: dict[str, float] | None = None
                 if _has_proba and _is_classifier:
                     raw_proba: np.ndarray = _model.predict_proba(X)[0]
-                    class_labels: List[str] = [str(c) for c in _model.classes_]
+                    class_labels: list[str] = [str(c) for c in _model.classes_]
                     probabilities = {
                         label: round(float(prob), 6)
                         for label, prob in zip(class_labels, raw_proba)

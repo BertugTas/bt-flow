@@ -12,16 +12,12 @@ Covers:
 from __future__ import annotations
 
 import pathlib
-import pickle
 
-import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 from sklearn.linear_model import LogisticRegression
 
 from bt import APIGenerator, ModelLoadError, UnsupportedModelError
-from bt.exceptions import SchemaInferenceError
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -207,7 +203,7 @@ class TestPredictNamed:
 
     def _valid_payload(self):  # type: ignore[no-untyped-def]
         assert self.feature_names is not None
-        return {name: 1.0 for name in self.feature_names}
+        return dict.fromkeys(self.feature_names, 1.0)
 
     def test_returns_200_with_named_payload(self) -> None:
         resp = self.client.post("/predict", json=self._valid_payload())

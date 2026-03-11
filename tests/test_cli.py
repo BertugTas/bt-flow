@@ -19,7 +19,6 @@ import pickle
 from typing import Any
 from unittest.mock import MagicMock, patch
 
-import pytest
 from typer.testing import CliRunner
 
 from bt.cli import app

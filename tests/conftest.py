@@ -8,15 +8,12 @@ from __future__ import annotations
 
 import pathlib
 import pickle
-from typing import Generator
 
 import joblib
-import numpy as np
+import pandas as pd
 import pytest
 from sklearn.datasets import load_iris, make_regression
 from sklearn.linear_model import LinearRegression, LogisticRegression
-
-import pandas as pd
 
 # ---------------------------------------------------------------------------
 # Raw data

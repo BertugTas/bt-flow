@@ -99,7 +99,12 @@ target-version = "py39"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "RUF"]
-ignore = ["E501"]
+ignore = [
+    "E501",   # line too long — handled by formatter
+    "N803",   # argument name should be lowercase — X is the sklearn convention for feature matrices
+    "N806",   # variable in function should be lowercase — X, X_df are numpy/sklearn conventions
+    "B008",   # do not perform function calls in default args — required pattern for typer.Argument/Option
+]
 
 # ---------------------------------------------------------------------------
 # Mypy

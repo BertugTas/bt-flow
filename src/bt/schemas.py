@@ -7,11 +7,10 @@ This module is responsible for:
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any
 
 import numpy as np
 from pydantic import BaseModel, Field, create_model
-
 
 # ---------------------------------------------------------------------------
 # Static response models
@@ -30,8 +29,8 @@ class PredictionResponse(BaseModel):
             e.g. ``"LogisticRegression"``.
     """
 
-    prediction: Union[int, float, str]
-    probabilities: Optional[Dict[str, float]] = Field(
+    prediction: int | float | str
+    probabilities: dict[str, float] | None = Field(
         default=None,
         description="Per-class probabilities (classifiers with predict_proba only).",
     )
@@ -52,7 +51,7 @@ class HealthResponse(BaseModel):
     status: str = Field(default="ok")
     model_type: str
     n_features: int
-    feature_names: Optional[List[str]] = None
+    feature_names: list[str] | None = None
     uptime_seconds: float
 
 
@@ -61,7 +60,7 @@ class HealthResponse(BaseModel):
 # ---------------------------------------------------------------------------
 
 
-def build_named_input_schema(feature_names: List[str]) -> Type[BaseModel]:
+def build_named_input_schema(feature_names: list[str]) -> type[BaseModel]:
     """Build a Pydantic model with one typed field per named feature.
 
     The generated schema looks like::
@@ -78,7 +77,7 @@ def build_named_input_schema(feature_names: List[str]) -> Type[BaseModel]:
     Returns:
         A dynamically created Pydantic ``BaseModel`` subclass.
     """
-    fields: Dict[str, Any] = {
+    fields: dict[str, Any] = {
         name: (
             float,
             Field(..., description=f"Feature: {name}"),
@@ -88,7 +87,7 @@ def build_named_input_schema(feature_names: List[str]) -> Type[BaseModel]:
     return create_model("PredictionInput", **fields)
 
 
-def build_positional_input_schema(n_features: int) -> Type[BaseModel]:
+def build_positional_input_schema(n_features: int) -> type[BaseModel]:
     """Build a Pydantic model that accepts an ordered feature vector.
 
     The generated schema looks like::
@@ -106,7 +105,7 @@ def build_positional_input_schema(n_features: int) -> Type[BaseModel]:
     return create_model(
         "PredictionInput",
         features=(
-            List[float],
+            list[float],
             Field(
                 ...,
                 min_length=n_features,
@@ -125,7 +124,7 @@ def build_positional_input_schema(n_features: int) -> Type[BaseModel]:
 # ---------------------------------------------------------------------------
 
 
-def numpy_scalar_to_python(value: Any) -> Union[int, float, str]:
+def numpy_scalar_to_python(value: Any) -> int | float | str:
     """Coerce a numpy scalar to a native Python type safe for JSON serialisation.
 
     Args:

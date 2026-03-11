@@ -13,9 +13,7 @@ information-dense terminal output.
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
-from typing import List, Optional
 
 import typer
 from rich.console import Console
@@ -167,7 +165,7 @@ def _startup_panel(
     )
 
 
-def _error_panel(message: str, hint: Optional[str] = None) -> Panel:
+def _error_panel(message: str, hint: str | None = None) -> Panel:
     """Build a Rich error panel for display on stderr.
 
     Args:
@@ -231,7 +229,7 @@ def serve(
         help="Uvicorn log level: debug | info | warning | error | critical.",
         show_default=True,
     ),
-    feature_names: Optional[str] = typer.Option(
+    feature_names: str | None = typer.Option(
         None,
         "--feature-names",
         "-f",
@@ -256,7 +254,7 @@ def serve(
     err_console = Console(stderr=True, highlight=False)
 
     # ── Parse --feature-names ────────────────────────────────────────────────
-    parsed_names: Optional[List[str]] = None
+    parsed_names: list[str] | None = None
     if feature_names is not None:
         parsed_names = [n.strip() for n in feature_names.split(",") if n.strip()]
         if not parsed_names:
@@ -297,7 +295,7 @@ def serve(
         api.run(host=host, port=port, log_level=log_level)
     except KeyboardInterrupt:
         console.print("[dim]\nServer stopped.[/dim]")
-        raise typer.Exit(code=0)
+        raise typer.Exit(code=0) from None
 
 
 # ---------------------------------------------------------------------------
