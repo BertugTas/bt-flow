@@ -1,0 +1,119 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "bt-flow"
+version = "0.1.0"
+description = "Bridge the gap between model training and deployment. Serve scikit-learn models as production-ready FastAPI REST APIs in a single line of code."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+authors = [
+    { name = "Your Name", email = "you@example.com" },
+]
+keywords = ["mlops", "fastapi", "scikit-learn", "deployment", "machine-learning", "api-generator"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+]
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.29.0",
+    "scikit-learn>=1.4.0",
+    "pydantic>=2.6.0",
+    "joblib>=1.3.0",
+    "numpy>=1.26.0",
+    "typer>=0.12.0",
+    "rich>=13.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "httpx>=0.27.0",
+    "mypy>=1.9.0",
+    "ruff>=0.3.0",
+    "pre-commit>=3.7.0",
+    "pandas>=2.0.0",
+]
+docs = [
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings[python]>=0.24.0",
+]
+
+[project.scripts]
+"bt-flow" = "bt.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/yourusername/bt-flow"
+Repository = "https://github.com/yourusername/bt-flow"
+Documentation = "https://yourusername.github.io/bt-flow"
+"Bug Tracker" = "https://github.com/yourusername/bt-flow/issues"
+
+# ---------------------------------------------------------------------------
+# Hatch build — maps the `bt` top-level package to the src layout
+# ---------------------------------------------------------------------------
+[tool.hatch.build.targets.wheel]
+packages = ["src/bt"]
+
+# ---------------------------------------------------------------------------
+# Hatch environments
+# ---------------------------------------------------------------------------
+[tool.hatch.envs.default]
+dependencies = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "httpx>=0.27.0",
+    "mypy>=1.9.0",
+    "ruff>=0.3.0",
+    "pandas>=2.0.0",
+]
+
+[tool.hatch.envs.default.scripts]
+test       = "pytest tests/ -v --tb=short"
+lint       = "ruff check src/ tests/"
+fmt        = "ruff format src/ tests/"
+typecheck  = "mypy src/bt --strict"
+all        = ["lint", "typecheck", "test"]
+
+# ---------------------------------------------------------------------------
+# Ruff
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length    = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "RUF"]
+ignore = ["E501"]
+
+# ---------------------------------------------------------------------------
+# Mypy
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version    = "3.9"
+strict            = true
+warn_return_any   = true
+warn_unused_configs = true
+exclude           = ["examples/", "docs/"]
+
+# ---------------------------------------------------------------------------
+# Pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths    = ["tests"]
