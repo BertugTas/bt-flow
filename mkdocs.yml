@@ -1,0 +1,74 @@
+site_name: bt-flow
+site_description: "Bridge the gap between model training and deployment. Serve scikit-learn models as FastAPI REST APIs in one line."
+site_url: https://BertugTas.github.io/bt-flow
+repo_url: https://github.com/BertugTas/bt-flow
+repo_name: BertugTas/bt-flow
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotate
+    - content.code.copy
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_source: true
+            show_root_heading: true
+            show_category_heading: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - attr_list
+  - md_in_html
+  - tables
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+  - User Guide:
+    - CLI Reference: user-guide/cli.md
+    - Python API: user-guide/python-api.md
+    - Schema Inference: user-guide/schema-inference.md
+    - Production Deployment: user-guide/production.md
+  - API Reference:
+    - APIGenerator: api/api-generator.md
+    - Schemas: api/schemas.md
+    - Exceptions: api/exceptions.md
+  - Contributing: contributing.md
+  - Changelog: changelog.md
