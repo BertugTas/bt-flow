@@ -22,10 +22,16 @@ from typing import TYPE_CHECKING, Any
 
 import joblib
 import numpy as np
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from bt.exceptions import ModelLoadError, SchemaInferenceError, UnsupportedModelError
+from bt.exceptions import (
+    ModelLoadError,
+    PredictionError,
+    SchemaInferenceError,
+    UnsupportedModelError,
+)
 from bt.schemas import (
     HealthResponse,
     PredictionResponse,
@@ -208,6 +214,25 @@ class APIGenerator:
         )
 
     # ------------------------------------------------------------------
+    # Public — model metadata
+    # ------------------------------------------------------------------
+
+    @property
+    def n_features(self) -> int:
+        """Number of input features the model expects."""
+        return self._n_features
+
+    @property
+    def feature_names(self) -> list[str] | None:
+        """Ordered feature names, or ``None`` if the model was trained on a numpy array."""
+        return self._feature_names
+
+    @property
+    def model_type(self) -> str:
+        """Class name of the underlying sklearn estimator (e.g. ``"LogisticRegression"``)."""
+        return type(self._model).__name__
+
+    # ------------------------------------------------------------------
     # Private — model loading
     # ------------------------------------------------------------------
 
@@ -361,6 +386,15 @@ class APIGenerator:
         _model_type_name = type(_model).__name__
         _start_time = self._start_time
 
+        # ---- PredictionError → HTTP 500 ----------------------------
+
+        @app.exception_handler(PredictionError)
+        async def _prediction_error_handler(request: Request, exc: PredictionError) -> JSONResponse:
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={"detail": str(exc)},
+            )
+
         # ---- /health ------------------------------------------------
 
         @app.get(
@@ -423,10 +457,7 @@ class APIGenerator:
                     detail=f"Input processing error: {exc}",
                 ) from exc
             except Exception as exc:
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=f"Prediction failed: {exc}",
-                ) from exc
+                raise PredictionError(f"Model inference failed: {exc}") from exc
 
         # Bind the dynamic schema into __annotations__ so FastAPI's
         # introspection resolves the correct request body model.

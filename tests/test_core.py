@@ -255,6 +255,47 @@ class TestPredictRegressor:
 
 
 # ---------------------------------------------------------------------------
+# Public properties
+# ---------------------------------------------------------------------------
+
+
+class TestPublicProperties:
+    def test_n_features(self, fitted_classifier) -> None:  # type: ignore[no-untyped-def]
+        gen = APIGenerator(fitted_classifier)
+        assert gen.n_features == 4
+
+    def test_feature_names_none_for_numpy_training(self, fitted_classifier) -> None:  # type: ignore[no-untyped-def]
+        gen = APIGenerator(fitted_classifier)
+        assert gen.feature_names is None
+
+    def test_feature_names_set_for_dataframe_training(self, fitted_classifier_named) -> None:  # type: ignore[no-untyped-def]
+        gen = APIGenerator(fitted_classifier_named)
+        assert gen.feature_names is not None
+        assert len(gen.feature_names) == 4
+
+    def test_model_type(self, fitted_classifier) -> None:  # type: ignore[no-untyped-def]
+        gen = APIGenerator(fitted_classifier)
+        assert gen.model_type == "LogisticRegression"
+
+
+# ---------------------------------------------------------------------------
+# PredictionError — model inference failure
+# ---------------------------------------------------------------------------
+
+
+class TestPredictionError:
+    def test_model_crash_returns_500(self, fitted_classifier) -> None:  # type: ignore[no-untyped-def]
+        from unittest.mock import patch
+
+        gen = APIGenerator(fitted_classifier)
+        client = make_client(gen)
+        with patch.object(fitted_classifier, "predict", side_effect=RuntimeError("GPU exploded")):
+            resp = client.post("/predict", json={"features": [5.1, 3.5, 1.4, 0.2]})
+        assert resp.status_code == 500
+        assert "Model inference failed" in resp.json()["detail"]
+
+
+# ---------------------------------------------------------------------------
 # OpenAPI docs availability
 # ---------------------------------------------------------------------------
 

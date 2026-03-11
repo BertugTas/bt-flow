@@ -10,6 +10,9 @@ directly from this namespace::
 Version follows `Semantic Versioning <https://semver.org/>`_.
 """
 
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as _pkg_version
+
 from bt.core import APIGenerator
 from bt.exceptions import (
     BTFlowError,
@@ -20,7 +23,10 @@ from bt.exceptions import (
 )
 from bt.schemas import HealthResponse, PredictionResponse
 
-__version__ = "0.1.0"
+try:
+    __version__: str = _pkg_version("bt-flow")
+except PackageNotFoundError:  # pragma: no cover — only outside an installed env
+    __version__ = "0.0.0"
 __all__ = [
     # Core
     "APIGenerator",

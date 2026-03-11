@@ -106,8 +106,8 @@ def _startup_panel(
     base_url = f"http://{display_host}:{port}"
 
     # ── Feature summary line ────────────────────────────────────────────────
-    n = api._n_features
-    names = api._feature_names
+    n = api.n_features
+    names = api.feature_names
     if names:
         preview = ", ".join(names[:3])
         suffix = ", …" if len(names) > 3 else ""
@@ -123,7 +123,7 @@ def _startup_panel(
     grid.add_column()
 
     # Model metadata section
-    grid.add_row("Model", Text(type(api._model).__name__, style="bold cyan"))
+    grid.add_row("Model", Text(api.model_type, style="bold cyan"))
     grid.add_row("Source", Text(str(model_path), style="dim"))
     grid.add_row("Features", feature_cell)
     grid.add_row("Schema", Text(schema_kind, style="green"))

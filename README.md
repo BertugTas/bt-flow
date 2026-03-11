@@ -4,6 +4,7 @@
 > Serve scikit-learn models as production-ready FastAPI REST APIs — in a single line of code.
 
 [![CI](https://github.com/BertugTas/bt-flow/actions/workflows/ci.yml/badge.svg)](https://github.com/BertugTas/bt-flow/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/BertugTas/bt-flow/branch/main/graph/badge.svg)](https://codecov.io/gh/BertugTas/bt-flow)
 [![PyPI - Version](https://img.shields.io/pypi/v/bt-flow)](https://pypi.org/project/bt-flow/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/bt-flow)](https://pypi.org/project/bt-flow/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
